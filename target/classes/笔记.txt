@@ -1,0 +1,3 @@
+
+JavaServer Faces 2.2 can not be installed : One or more constraints have not been satisfied.
+JavaServer Faces 2.2 requires Dynamic Web Module 2.5 or newer.	SSM-Test2		

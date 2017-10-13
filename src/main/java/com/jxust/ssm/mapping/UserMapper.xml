@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- namespace的值就是dao接口的完整路径，就这个demo而言namespace 就是userDao.java的完整路径-->
+<mapper namespace="com.jxust.ssm.dao.UserDao">
+	<resultMap id="BaseResultMap" type="com.jxust.ssm.pojo.User">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="user_name" property="userName" jdbcType="VARCHAR" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="age" property="age" jdbcType="INTEGER" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, user_name, password, age
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from tb_user
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<select id="testlogin" resultMap="BaseResultMap"
+		parameterType="com.jxust.ssm.pojo.User">
+		select
+		<include refid="Base_Column_List" />
+		from tb_user
+		where id = #{id,jdbcType=INTEGER}
+		  and password = #{password,jdbcType=VARCHAR}
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		tb_user
+		where id = #{id,jdbcType=VARCHAR}
+	</delete>
+	
+	<insert id="reset">
+		insert into turn_inf (turn,
+		test1, capital1,test2,capital2,test3,capital3,test4,capital4
+		)
+		values ('1','1','100','2','100','3','100','4','100')
+	</insert>
+	
+	<insert id="insert" parameterType="com.jxust.ssm.pojo.User">
+		insert into tb_user (id,
+		user_name, password,
+		age)
+		values (#{id,jdbcType=VARCHAR},
+		#{userName,jdbcType=VARCHAR},
+		#{password,jdbcType=VARCHAR},
+		#{age,jdbcType=INTEGER})
+	</insert>
+	
+	<insert id="insertSelective" parameterType="com.jxust.ssm.pojo.User">
+		insert into tb_user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="userName != null">
+				user_name,
+			</if>
+			<if test="password != null">
+				password,
+			</if>
+			<if test="age != null">
+				age,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="userName != null">
+				#{userName,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="age != null">
+				#{age,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	
+	<update id="updateByPrimaryKeySelective" parameterType="com.jxust.ssm.pojo.User">
+		update tb_user
+		<set>
+			<if test="userName != null">
+				user_name = #{userName,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="age != null">
+				age = #{age,jdbcType=INTEGER},
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+	
+	<insert id="confirm" parameterType="com.jxust.ssm.pojo.Tzinfo">
+		insert into tb_turn_inf (turn,id,capital,invest,reg_dtm)
+		values (#{turn,jdbcType=INTEGER},
+				#{id,jdbcType=VARCHAR},
+				#{capital,jdbcType=INTEGER},
+				#{invest,jdbcType=INTEGER},
+				CURRENT_TIMESTAMP )
+	</insert>
+	
+	<resultMap id="Tzinfo" type="com.jxust.ssm.pojo.Tzinfo">
+		<id column="turn" property="turn" jdbcType="INTEGER" />
+		<result column="id" property="id" jdbcType="VARCHAR" />
+		<result column="capital" property="capital" jdbcType="INTEGER" />
+		<result column="invest" property="invest" jdbcType="INTEGER" />
+	</resultMap>
+	<sql id="Base_Tzinfo_List">
+		turn, id, capital, invest
+	</sql>
+	<select id="check" resultMap="Tzinfo" parameterType="com.jxust.ssm.pojo.Tzinfo">
+		select turn,id , capital, invest from tb_turn_inf    
+		 where turn =  (#{turn,jdbcType=INTEGER})
+		   and id like  CONCAT(substring(#{id,jdbcType=VARCHAR},1,1),'%')
+	</select>
+	<select id="checkins" resultMap="Tzinfo" parameterType="com.jxust.ssm.pojo.Tzinfo">
+		select turn,id , capital, invest from tb_turn_inf    
+		 where turn =  #{turn,jdbcType=INTEGER}
+		   and id =#{id,jdbcType=VARCHAR}
+	</select>
+	
+	<resultMap id="Rsinfo" type="com.jxust.ssm.pojo.Tzinfo">
+		<id column="turn" property="turn" jdbcType="INTEGER" />
+		<result column="id" property="id" jdbcType="VARCHAR" />
+		<result column="capital" property="capital" jdbcType="INTEGER" />
+	</resultMap>
+	<select id="calcul" resultMap="Rsinfo" parameterType="com.jxust.ssm.pojo.Tzinfo">
+		SELECT TURN+1 turn,ID,
+		       CASE WHEN FN_GET_SUM(#{turn,jdbcType=INTEGER}) >= 200
+		       THEN CAPITAL-INVEST+floor(FN_GET_SUM(#{turn,jdbcType=INTEGER})*2/4)
+					 ELSE CAPITAL-INVEST 
+		        END CAPITAL
+		  FROM tb_turn_inf
+		 WHERE turn =  #{turn,jdbcType=INTEGER}
+		   AND id   =  #{id,jdbcType=VARCHAR}
+	</select>
+	
+	<resultMap id="Reptinfo" type="com.jxust.ssm.pojo.Report">
+		<id column="id1" property="id1" jdbcType="VARCHAR" />
+		<result column="capital1" property="capital1" jdbcType="INTEGER" />
+		<result column="invest1" property="invest1" jdbcType="INTEGER" />
+		<result column="capita12" property="capita12" jdbcType="INTEGER" />
+		<result column="invest2" property="invest2" jdbcType="INTEGER" />
+		<result column="capital3" property="capital3" jdbcType="INTEGER" />
+		<result column="invest3" property="invest3" jdbcType="INTEGER" />
+		<result column="capital4" property="capital4" jdbcType="INTEGER" />
+		<result column="invest4" property="invest4" jdbcType="INTEGER" />
+		<result column="capital5" property="capital5" jdbcType="INTEGER" />
+		<result column="invest5" property="invest5" jdbcType="INTEGER" />
+		<result column="capital6" property="capital6" jdbcType="INTEGER" />
+		<result column="invest6" property="invest6" jdbcType="INTEGER" />
+		<result column="capital7" property="capital7" jdbcType="INTEGER" />
+	</resultMap>
+	<select id="getReport" resultMap="Reptinfo" >
+		SELECT ID1,CAPITAL1,INVEST1,CAPITAL2,INVEST2,CAPITAL3,INVEST3,CAPITAL4,INVEST4,CAPITAL5,INVEST5,CAPITAL6,INVEST6,CAPITAL7
+		  FROM(
+				SELECT ID ID1,CAPITAL CAPITAL1,INVEST INVEST1
+				 FROM tb_turn_inf
+				 WHERE turn =1
+				) A
+				LEFT JOIN(
+				SELECT ID ID2,CAPITAL CAPITAL2,INVEST INVEST2
+				 FROM tb_turn_inf
+				 WHERE turn =2
+				)B ON A.ID1 = B.ID2
+				LEFT JOIN(
+				SELECT ID ID3,CAPITAL CAPITAL3,INVEST INVEST3
+				 FROM tb_turn_inf
+				 WHERE turn =3
+				)C ON A.ID1 = C.ID3
+				LEFT JOIN(
+				SELECT ID ID4,CAPITAL CAPITAL4,INVEST INVEST4
+				 FROM tb_turn_inf
+				 WHERE turn =4
+				)D ON A.ID1 = D.ID4
+				LEFT JOIN(
+				SELECT ID ID5,CAPITAL CAPITAL5,INVEST INVEST5
+				 FROM tb_turn_inf
+				 WHERE turn =5
+				)E ON A.ID1 = E.ID5
+				LEFT JOIN(
+				SELECT ID ID6,CAPITAL CAPITAL6,INVEST INVEST6
+				 FROM tb_turn_inf
+				 WHERE turn =6
+				)F ON A.ID1 = F.ID6
+				LEFT JOIN(
+				SELECT ID ID7,
+							 CASE WHEN FN_GET_SUM(6) >= 200
+							 THEN CAPITAL-INVEST+floor(FN_GET_SUM(6)*2/4)
+							 ELSE CAPITAL-INVEST 
+								END CAPITAL7
+					FROM tb_turn_inf
+					where turn = 6
+				)G ON A.ID1 = G.ID7
+				order by id1
+	</select>
+</mapper>
